@@ -149,7 +149,8 @@ domain={'domain1A':{'slab':domain1A,'wt':1.},'domain1B':{'slab':domain1B,'wt':0.
 sample = model.Sample(inst, bulk, domain, unitcell,coherence=False,surface_parms={'delta1':0.,'delta2':0.1391})
 #move on
 def Sim(data):
-#scale class one batch(initiate+processing)
+#scale class one batch
+#extract the fitting par values in the associated attribute and then do the scaling(initiate+processing)
 #in sim_batch file, ocu lines should be changed accordingly, and make sure the symbol used in txt is the same as that defined in the class
 #note the atomlist and ref_value has the same name even at the different class
 #in scale txt file, change the index order accordingly
@@ -158,7 +159,7 @@ def Sim(data):
 #scale class two
     domain_class_2.init_sim_batch(batch_path_head+'sim_batch_class2.txt')
     domain_class_2.scale_opt_batch(batch_path_head+'scale_operation_file_class2_1.txt')
-#change the orientation of the initial polyhedra(the text files have not yet been created)
+#change the orientation of the initial polyhedra
     domain_class_1.updata_polyhedra_orientation_batch(batch_path_head+'polyhedra_orientation_batch_file_class1.txt')
     domain_class_2.updata_polyhedra_orientation_batch(batch_path_head+'polyhedra_orientation_batch_file_class2.txt')    
 #updata the body center point of each polyhedra

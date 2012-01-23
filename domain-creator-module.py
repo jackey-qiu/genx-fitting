@@ -44,6 +44,15 @@ class domain_creator():
         
     def add_sorbate_polyhedra(self,domain,r=0.1,theta=[0.,0.],phi=[np.pi/2,np.pi/2],polyhedra_flag='tetrahedra',\
             extra_flag='1_1+0_1',extra_flag2='type1',attach_atm_id=[[],[]],el='Pb',id_attach=[]):
+        #theta and phi is list with at most two items, when considering share-corner, and  when considering
+        #shareing edge, theta and phi list contain only one item. extra flags has values depending on the polyhedra
+        #type used, attach atm id (oxygen id at the surface) is a list of list, the list inside has items of one (share corner), two (share edge)
+        #or three (share face),id attach has the same length as attach atm id, each item is a str symbol used to distinguish
+        #the added Pb,for say, and O, is one of the item is 'A', then the associated ids for the added atoms will be like
+        #Pb_A, Os_A_0,Os_A_1. The number of id attach is the number of Pb types added. And you should see the relationship b/
+        #id of Pb and O, so Pb_A will have Os_A_n like oxygen attached (same A),and Pb_AA will have Os_AA_n like oxygen attached (same AA)
+        #this function will add several types of Pb at the surface,each type will correspoind to a polyhedra in self.polyhedra_list
+        #you shoul know the index of chemically equivalent polyhedra, it should be every other number,like 0 and 2,or 1 and 3.
         N_vertices=len(attach_atm_id[0])
         if N_vertices==3:self.share_face=True
         elif N_vertices==2:self.share_edge=True
@@ -55,7 +64,6 @@ class domain_creator():
                 pt_x,pt_y,pt_z=domain.x[index],domain.y[index],domain.z[index]
                 anchor=np.append(anchor,np.array([[pt_x,pt_y,pt_z]]),axis=0)
             anchor=anchor[1::]
-            #self.anchor_list.append(anchor)
             oxygens=np.array([[0.,0.,0.]])
             polyhedra=0
             if polyhedra_flag=='tetrahedra':
@@ -63,39 +71,32 @@ class domain_creator():
                     polyhedra=tetrahedra.share_face(face=anchor)
                     polyhedra.share_face_init()
                     self.polyhedra_list.append(polyhedra)
-                    #oxygens=np.append(oxygens,[polyhedra.p3],axis=0)[1::]
                     oxygens=np.append(oxygens,[getattr(polyhedra,'p'+str(ii+3)) for ii in range(1)],axis=0)[1::]
                 elif N_vertices==2:
                     polyhedra=tetrahedra.share_edge(edge=anchor)
                     polyhedra.cal_p2(theta=theta[0],phi=phi[0])
                     polyhedra.share_face_init()
                     self.polyhedra_list.append(polyhedra)
-                    #oxygens=np.append(oxygens,[polyhedra.p2,polyhedra.p3],axis=0)[1::]
                     oxygens=np.append(oxygens,[getattr(polyhedra,'p'+str(ii+2)) for ii in range(2)],axis=0)[1::]
-                    #oxygens=[vars(polyhedra)['p'+str(ii+2)] for ii in range(2)]
                 elif N_vertices==1:
                     polyhedra=tetrahedra.share_corner(corner=anchor)
                     polyhedra.cal_p1(r=r,theta=theta[0],phi=phi[0])
                     polyhedra.cal_p2(theta=theta[1],phi=phi[1])
                     polyhedra.share_face_init()
                     self.polyhedra_list.append(polyhedra)
-                    #oxygens=np.append(oxygens,[polyhedra.p1,polyhedra.p2,polyhedra.p3],axis=0)[1::]
                     oxygens=np.append(oxygens,[getattr(polyhedra,'p'+str(ii+1)) for ii in range(3)],axis=0)[1::]
-                    #oxygens=[getattr(polyhedra,'p'+str(ii+1)) for ii in range(3)]
             elif polyhedra_flag=='hexahedra':
                 if N_vertices==3:
                     polyhedra=hexahedra.share_face(face=anchor)
                     polyhedra.share_face_init(flag=extra_flag)
                     self.polyhedra_list.append(polyhedra)
                     oxygens=np.append(oxygens,[getattr(polyhedra,'p'+str(ii+3)) for ii in range(2)],axis=0)[1::]
-                    #oxygens=[getattr(polyhedra,'p'+str(ii+3)) for ii in range(2)]
                 elif N_vertices==2:
                     polyhedra=tetrahedra.share_edge(edge=anchor)
                     polyhedra.cal_p2(theta=theta[0],phi=phi[0],flag=extra_flag,extend_flag=extra_flag2)
                     polyhedra.share_face_init()
                     self.polyhedra_list.append(polyhedra)
                     oxygens=np.append(oxygens,[getattr(polyhedra,'p'+str(ii+2)) for ii in range(3)],axis=0)[1::]
-                    #oxygens=[getattr(polyhedra,'p'+str(ii+2)) for ii in range(3)]
                 elif N_vertices==1:
                     polyhedra=tetrahedra.share_corner(corner=anchor)
                     polyhedra.cal_p1(r=r,theta=theta[0],phi=phi[0])
@@ -103,22 +104,18 @@ class domain_creator():
                     polyhedra.share_face_init()
                     self.polyhedra_list.append(polyhedra)
                     oxygens=np.append(oxygens,[getattr(polyhedra,'p'+str(ii+1)) for ii in range(4)],axis=0)[1::]
-                    #oxygens=[getattr(polyhedra,'p'+str(ii+1)) for ii in range(4)]
-                    #oxygens=np.append(oxygens,[polyhedra.p3,polyhedra.p4],axis=0)[1::]
             elif polyhedra_flag=='octahedra':
                 if N_vertices==3:
                     polyhedra=octahedra.share_face(face=anchor)
                     polyhedra.share_face_init(flag=extra_flag)
                     self.polyhedra_list.append(polyhedra)
                     oxygens=np.append(oxygens,[getattr(polyhedra,'p'+str(ii+3)) for ii in range(3)],axis=0)[1::]
-                    #oxygens=[getattr(polyhedra,'p'+str(ii+3)) for ii in range(3)]
                 elif N_vertices==2:
                     polyhedra=octahedra.share_edge(edge=anchor)
                     polyhedra.cal_p2(theta=theta[0],phi=phi[0],flag=extra_flag)
                     polyhedra.share_face_init()
                     self.polyhedra_list.append(polyhedra)
                     oxygens=np.append(oxygens,[getattr(polyhedra,'p'+str(ii+2)) for ii in range(4)],axis=0)[1::]
-                    #oxygens=[getattr(polyhedra,'p'+str(ii+2)) for ii in range(4)]
                 elif N_vertices==1:
                     polyhedra=octahedra.share_corner(corner=anchor)
                     polyhedra.cal_p1(r=r,theta=theta[0],phi=phi[0])
@@ -126,16 +123,16 @@ class domain_creator():
                     polyhedra.share_face_init()
                     self.polyhedra_list.append(polyhedra)
                     oxygens=np.append(oxygens,[getattr(polyhedra,'p'+str(ii+1)) for ii in range(5)],axis=0)[1::]
-                    #oxygens=[getattr(polyhedra,'p'+str(ii+1)) for ii in range(5)]
-                    #oxygens=np.append(oxygens,[polyhedra.p3,polyhedra.p4,polyhedra.p5],axis=0)[1::]
+            #Pb is at body center, which is the center point here
             domain.add_atom(id=el+'_'+id_attach[i],element=el,x=polyhedra.center_point[0],y=polyhedra.center_point[1],z=polyhedra.center_point[2],u=1.)
             for iii in range(len(oxygens)):
                 o_xyz=oxygens[iii,:]
                 domain.add_atom(id='Os_'+id_attach[i]+'_'+str(iii),element='O',x=o_xyz[0],y=o_xyz[1],z=o_xyz[2],u=0.32)
 
     def updata_polyhedra_orientation(self,polyhedra_index=[0,2],r=None,phi_list=[],theta_list=[],flag1='0_2+0_1',flag2='type1'):
-        #need to be fixed since different polyhedra has different argument patterns
-        #this function will change T for each polyhedra
+        #this function will change T matrix and center point for each polyhedra
+        #actually we want to change the coordinate system by rotating over the shared corner or edge
+        #it won't change the atom position by now, the seting of the phi and theta list and the flags depend on polyhedra used
         for i in polyhedra_index:
             if self.share_corner==True:
                 self.polyhedra_list[i].cal_p1(r=r,theta=theta_list[0],phi=phi_list[0])
@@ -166,6 +163,8 @@ class domain_creator():
         f.close()
         
     def updata_polyhedra_center_point(self,domain_list,Pb_id_list,polyhedra_index_list):
+        #this function will change the position of body center during fitting
+        #all list has the same dimension
         for i in range(len(domain_list)):
             index=list(domain_list[i].id).index(Pb_id_list[i])
             x=domain_list[i].x[index]+domain_list[i].dx1[index]+domain_list[i].dx2[index]+domain_list[i].dx3[index]
@@ -187,11 +186,16 @@ class domain_creator():
         f.close()
         
     def updata_sorbate_polyhedra2(self,domain_list=[],id_list=[],polyhedra_index_list=[],offset=0,dr=0,dtheta=0,dphi=0):
-        #id1 looks like Os_A_0 or Os_AA_0
+        #id in id list looks like Os_A_0 or Os_AA_0
         #id1 in domain1(domain1A) has the same setting with id2 in domain2(domain1B)
         #id1 in domain1 correspond to polyhedra list[1]
         #id always indexed from 0,like Os_A_0,the corresponding point in polyhedra can be different
-        #depending on shareing mode, like if share edge, id0-->p2, where the offset here is 2
+        #depending on shareing mode, like if share edge, id0-->p2 (the p0 and p1 is the shared point), where the offset here is 2
+        #after this step the orientation of polyhedra will be having effect on the position of oxygen added
+        #the length of all the lists here is 2, representing doing setting equivalently for two chemically equivalent atoms
+        #note the id list is like [id_A,id_B],the associated polyhedra index list is [0,2]
+        #or [id_AA,id_BB]-->[1,3]
+        #if you consider different number of equivalent domain, like 3, then the list should be set accordingly
         def _cal_theta_phi(array):
             x,y,z=(array[0],array[1],array[2])
             r=np.sqrt(x**2+y**2+z**2)
