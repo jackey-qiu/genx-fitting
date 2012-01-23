@@ -92,13 +92,13 @@ class domain_creator():
                     self.polyhedra_list.append(polyhedra)
                     oxygens=np.append(oxygens,[getattr(polyhedra,'p'+str(ii+3)) for ii in range(2)],axis=0)[1::]
                 elif N_vertices==2:
-                    polyhedra=tetrahedra.share_edge(edge=anchor)
+                    polyhedra=hexahedra.share_edge(edge=anchor)
                     polyhedra.cal_p2(theta=theta[0],phi=phi[0],flag=extra_flag,extend_flag=extra_flag2)
                     polyhedra.share_face_init()
                     self.polyhedra_list.append(polyhedra)
                     oxygens=np.append(oxygens,[getattr(polyhedra,'p'+str(ii+2)) for ii in range(3)],axis=0)[1::]
                 elif N_vertices==1:
-                    polyhedra=tetrahedra.share_corner(corner=anchor)
+                    polyhedra=hexahedra.share_corner(corner=anchor)
                     polyhedra.cal_p1(r=r,theta=theta[0],phi=phi[0])
                     polyhedra.cal_p2(theta=theta[1],phi=phi[1],flag=extra_flag,extend_flag=extra_flag2)
                     polyhedra.share_face_init()
