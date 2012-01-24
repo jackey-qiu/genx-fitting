@@ -186,8 +186,11 @@ def Sim(data):
     def print_data(yes=False):
         if yes==True:
             data=domain1A._extract_values()
-            print_out=np.append(data[0][:,np.newaxis]*5.038,[data[1][:,np.newaxis]*5.434,data[2][:,np.newaxis]*7.3707],axis=1)
-            np.savetxt('Y:\\codes\\my code\\modeling files\\surface modeling 1\\scripts\\dsview.xyz',print_out)
+            f=open('Y:\\codes\\my code\\modeling files\\surface modeling 1\\scripts\\dsview.xyz','w')
+            for i in range(len(data[0])):
+                s = '%-5s   %7.5e   %7.5e   %7.5e\n' % (data[3][i],data[0][i]*5.038,data[1][i]*5.434,data[2][i]*7.3707)
+                f.write(s)
+            f.close()
         else:pass
     print_data(False)
     F =[]
