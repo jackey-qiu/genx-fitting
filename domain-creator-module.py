@@ -143,6 +143,13 @@ class domain_creator():
                 self.polyhedra_list[i].share_face_init(flag=self.polyhedra_list[i].flag)
                 
     def updata_polyhedra_orientation_batch(self,file):
+        def norm_phi(phi):
+            normalized_phi=0
+            if phi<=0.5:
+                normalized_phi=1.5708
+            elif phi>0.5:
+                normalized_phi=4.7124
+            return normalized_phi
         f=open(file)
         lines=f.readlines()
         for line in lines:
@@ -156,7 +163,7 @@ class domain_creator():
                     pass
                 list_len=int(line_split[3])
                 theta_list=[getattr(self.new_var_module,i) for i in line_split[4:4+list_len]]
-                phi_list=[getattr(self.new_var_module,i) for i in line_split[4+list_len:4+2*list_len]]
+                phi_list=[norm_phi(getattr(self.new_var_module,i)) for i in line_split[4+list_len:4+2*list_len]]
                 flag1=line_split[-3]
                 flag2=line_split[-2]
                 self.updata_polyhedra_orientation(polyhedra_index,r,phi_list,theta_list,flag1,flag2)
