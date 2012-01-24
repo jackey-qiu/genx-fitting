@@ -62,7 +62,7 @@ class domain_creator():
             for j in range(N_vertices):
                 index=np.where(domain.id==attach_atm_id[i][j])[0][0]
                 pt_x,pt_y,pt_z=domain.x[index],domain.y[index],domain.z[index]
-                anchor=np.append(anchor,np.array([[pt_x,pt_y,pt_z]]),axis=0)
+                anchor=np.append(anchor,np.array([[pt_x*5.038,pt_y*5.434,pt_z*7.3707]]),axis=0)
             anchor=anchor[1::]
             oxygens=np.array([[0.,0.,0.]])
             polyhedra=0
@@ -124,10 +124,10 @@ class domain_creator():
                     self.polyhedra_list.append(polyhedra)
                     oxygens=np.append(oxygens,[getattr(polyhedra,'p'+str(ii+1)) for ii in range(5)],axis=0)[1::]
             #Pb is at body center, which is the center point here
-            domain.add_atom(id=el+'_'+id_attach[i],element=el,x=polyhedra.center_point[0],y=polyhedra.center_point[1],z=polyhedra.center_point[2],u=1.)
+            domain.add_atom(id=el+'_'+id_attach[i],element=el,x=polyhedra.center_point[0]/5.038,y=polyhedra.center_point[1]/5.434,z=polyhedra.center_point[2]/7.3707,u=1.)
             for iii in range(len(oxygens)):
                 o_xyz=oxygens[iii,:]
-                domain.add_atom(id='Os_'+id_attach[i]+'_'+str(iii),element='O',x=o_xyz[0],y=o_xyz[1],z=o_xyz[2],u=0.32)
+                domain.add_atom(id='Os_'+id_attach[i]+'_'+str(iii),element='O',x=o_xyz[0]/5.038,y=o_xyz[1]/5.434,z=o_xyz[2]/7.3707,u=0.32)
 
     def updata_polyhedra_orientation(self,polyhedra_index=[0,2],r=None,phi_list=[],theta_list=[],flag1='0_2+0_1',flag2='type1'):
         #this function will change T matrix and center point for each polyhedra
@@ -174,9 +174,9 @@ class domain_creator():
         #all list has the same dimension
         for i in range(len(domain_list)):
             index=list(domain_list[i].id).index(Pb_id_list[i])
-            x=domain_list[i].x[index]+domain_list[i].dx1[index]+domain_list[i].dx2[index]+domain_list[i].dx3[index]
-            y=domain_list[i].y[index]+domain_list[i].dy1[index]+domain_list[i].dy2[index]+domain_list[i].dy3[index]
-            z=domain_list[i].z[index]+domain_list[i].dz1[index]+domain_list[i].dz2[index]+domain_list[i].dz3[index]
+            x=5.038*(domain_list[i].x[index]+domain_list[i].dx1[index]+domain_list[i].dx2[index]+domain_list[i].dx3[index])
+            y=5.434*(domain_list[i].y[index]+domain_list[i].dy1[index]+domain_list[i].dy2[index]+domain_list[i].dy3[index])
+            z=7.3707*(domain_list[i].z[index]+domain_list[i].dz1[index]+domain_list[i].dz2[index]+domain_list[i].dz3[index])
             self.polyhedra_list[polyhedra_index_list[i]].center_point=np.array([x,y,z])
     
     def updata_polyhedra_center_point_batch(self,file):
@@ -216,9 +216,9 @@ class domain_creator():
             o_r,o_theta,o_phi=_cal_theta_phi(getattr(self.polyhedra_list[p_index],polyhedra_symbol)-self.polyhedra_list[p_index].center_point)
             n_r,n_theta,n_phi=o_r+dr,o_theta+dtheta,o_phi+dphi
             new_point_xyz=self.polyhedra_list[p_index].cal_point_in_fit(r=n_r,theta=n_theta,phi=n_phi)
-            domain_list[i].x[id_index]=new_point_xyz[0]
-            domain_list[i].y[id_index]=new_point_xyz[1]
-            domain_list[i].z[id_index]=new_point_xyz[2]
+            domain_list[i].x[id_index]=new_point_xyz[0]/5.038
+            domain_list[i].y[id_index]=new_point_xyz[1]/5.434
+            domain_list[i].z[id_index]=new_point_xyz[2]/7.3707
     
         
     def updata_sorbate_polyhedra2_batch(self,file):
