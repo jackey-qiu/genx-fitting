@@ -43,7 +43,7 @@ class domain_creator():
         return new_domain_A,new_domain_B
         
     def add_sorbate_polyhedra(self,domain,r=0.1,theta=[0.,0.],phi=[np.pi/2,np.pi/2],polyhedra_flag='tetrahedra',\
-            extra_flag='1_1+0_1',extra_flag2='type1',attach_atm_id=[[],[]],el='Pb',id_attach=[]):
+            extra_flag='1_1+0_1',extra_flag2='type1',attach_atm_id=[[],[]],el='Pb',id_attach=[],use_ref=False):
         #theta and phi is list with at most two items, when considering share-corner, and  when considering
         #shareing edge, theta and phi list contain only one item. extra flags has values depending on the polyhedra
         #type used, attach atm id (oxygen id at the surface) is a list of list, the list inside has items of one (share corner), two (share edge)
@@ -74,7 +74,10 @@ class domain_creator():
                     oxygens=np.append(oxygens,[getattr(polyhedra,'p'+str(ii+3)) for ii in range(1)],axis=0)[1::]
                 elif N_vertices==2:
                     polyhedra=tetrahedra.share_edge(edge=anchor)
-                    polyhedra.cal_p2(theta=theta[0],phi=phi[0])
+                    if use_ref==True:
+                        ref_p=(anchor[0]+anchor[1])/2+np.array([[0,0.,2.]])
+                        polyhedra.cal_p2(ref_p=ref_p,theta=theta[0],phi=phi[0])
+                    else:polyhedra.cal_p2(theta=theta[0],phi=phi[0])
                     polyhedra.share_face_init()
                     self.polyhedra_list.append(polyhedra)
                     oxygens=np.append(oxygens,[getattr(polyhedra,'p'+str(ii+2)) for ii in range(2)],axis=0)[1::]
@@ -93,7 +96,10 @@ class domain_creator():
                     oxygens=np.append(oxygens,[getattr(polyhedra,'p'+str(ii+3)) for ii in range(2)],axis=0)[1::]
                 elif N_vertices==2:
                     polyhedra=hexahedra.share_edge(edge=anchor)
-                    polyhedra.cal_p2(theta=theta[0],phi=phi[0],flag=extra_flag,extend_flag=extra_flag2)
+                    if use_ref==True:
+                        ref_p=(anchor[0]+anchor[1])/2+np.array([[0,0.,2.]])
+                        polyhedra.cal_p2(ref_p=ref_p,theta=theta[0],phi=phi[0],flag=extra_flag,extend_flag=extra_flag2)
+                    else:polyhedra.cal_p2(theta=theta[0],phi=phi[0],flag=extra_flag,extend_flag=extra_flag2)
                     polyhedra.share_face_init(polyhedra.flag)
                     self.polyhedra_list.append(polyhedra)
                     oxygens=np.append(oxygens,[getattr(polyhedra,'p'+str(ii+2)) for ii in range(3)],axis=0)[1::]
@@ -112,7 +118,10 @@ class domain_creator():
                     oxygens=np.append(oxygens,[getattr(polyhedra,'p'+str(ii+3)) for ii in range(3)],axis=0)[1::]
                 elif N_vertices==2:
                     polyhedra=octahedra.share_edge(edge=anchor)
-                    polyhedra.cal_p2(theta=theta[0],phi=phi[0],flag=extra_flag)
+                    if use_ref==True:
+                        ref_p=(anchor[0]+anchor[1])/2+np.array([[0,0.,2.]])
+                        polyhedra.cal_p2(ref_p=ref_p,theta=theta[0],phi=phi[0],flag=extra_flag)
+                    else:polyhedra.cal_p2(theta=theta[0],phi=phi[0],flag=extra_flag)
                     polyhedra.share_face_init(polyhedra.flag)
                     self.polyhedra_list.append(polyhedra)
                     oxygens=np.append(oxygens,[getattr(polyhedra,'p'+str(ii+2)) for ii in range(4)],axis=0)[1::]
