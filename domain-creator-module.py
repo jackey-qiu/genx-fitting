@@ -192,7 +192,7 @@ class domain_creator():
                 self.updata_polyhedra_center_point(domain_list,Pb_id_list,polyhedra_index_list)
         f.close()
         
-    def updata_sorbate_polyhedra2(self,domain_list=[],id_list=[],polyhedra_index_list=[],offset=0,dr=0,dtheta=0,dphi=0):
+    def updata_sorbate_polyhedra2(self,domain_list=[],id_list=[],polyhedra_index_list=[],offset=0,r=0,theta=0,phi=0):
         #id in id list looks like Os_A_0 or Os_AA_0
         #id1 in domain1(domain1A) has the same setting with id2 in domain2(domain1B)
         #id1 in domain1 correspond to polyhedra list[1]
@@ -203,19 +203,11 @@ class domain_creator():
         #note the id list is like [id_A,id_B],the associated polyhedra index list is [0,2]
         #or [id_AA,id_BB]-->[1,3]
         #if you consider different number of equivalent domain, like 3, then the list should be set accordingly
-        def _cal_theta_phi(array):
-            x,y,z=(array[0],array[1],array[2])
-            r=np.sqrt(x**2+y**2+z**2)
-            phi=np.arctan(y/x)
-            theta=np.arccos(z/r)
-            return r,theta,phi
         for i in range(len(domain_list)):
             id_index=list(domain_list[i].id).index(id_list[i])
             polyhedra_symbol='p'+str(int(id_list[i][-1])+offset)
             p_index=polyhedra_index_list[i]
-            o_r,o_theta,o_phi=_cal_theta_phi(getattr(self.polyhedra_list[p_index],polyhedra_symbol)-self.polyhedra_list[p_index].center_point)
-            n_r,n_theta,n_phi=o_r+dr,o_theta+dtheta,o_phi+dphi
-            new_point_xyz=self.polyhedra_list[p_index].cal_point_in_fit(r=n_r,theta=n_theta,phi=n_phi)
+            new_point_xyz=self.polyhedra_list[p_index].cal_point_in_fit(r=r,theta=theta,phi=phi)
             domain_list[i].x[id_index]=new_point_xyz[0]/5.038
             domain_list[i].y[id_index]=new_point_xyz[1]/5.434
             domain_list[i].z[id_index]=new_point_xyz[2]/7.3707
@@ -231,10 +223,10 @@ class domain_creator():
                 id_list=[line_split[2],line_split[3]]
                 polyhedra_index_list=[int(line_split[4]),int(line_split[5])]
                 offset=int(line_split[6])
-                dr=getattr(self.new_var_module,line_split[7])
-                dtheta=getattr(self.new_var_module,line_split[8])
-                dphi=getattr(self.new_var_module,line_split[9])
-                self.updata_sorbate_polyhedra2(domain_list,id_list,polyhedra_index_list,offset,dr,dtheta,dphi)
+                r=getattr(self.new_var_module,line_split[7])
+                theta=getattr(self.new_var_module,line_split[8])
+                phi=getattr(self.new_var_module,line_split[9])
+                self.updata_sorbate_polyhedra2(domain_list,id_list,polyhedra_index_list,offset,r,theta,phi)
         f.close()
         
     def add_sorbates(self,domain,attach_atm_id=[['id1','id2']],el=['Pb'],id=[1],O_id=['_A'],r1=0.1,r2=None,alpha1=1.7,alpha2=None):
