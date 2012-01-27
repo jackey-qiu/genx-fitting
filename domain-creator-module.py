@@ -75,7 +75,7 @@ class domain_creator():
                 elif N_vertices==2:
                     polyhedra=tetrahedra.share_edge(edge=anchor)
                     if use_ref==True:
-                        ref_p=(anchor[0]+anchor[1])/2+np.array([[0,0.,2.]])
+                        ref_p=(anchor[0]+anchor[1])/2+np.array([0,0.,2.])
                         polyhedra.cal_p2(ref_p=ref_p,theta=theta[0],phi=phi[0])
                     else:polyhedra.cal_p2(theta=theta[0],phi=phi[0])
                     polyhedra.share_face_init()
@@ -97,7 +97,7 @@ class domain_creator():
                 elif N_vertices==2:
                     polyhedra=hexahedra.share_edge(edge=anchor)
                     if use_ref==True:
-                        ref_p=(anchor[0]+anchor[1])/2+np.array([[0,0.,2.]])
+                        ref_p=(anchor[0]+anchor[1])/2+np.array([0,0.,2.])
                         polyhedra.cal_p2(ref_p=ref_p,theta=theta[0],phi=phi[0],flag=extra_flag,extend_flag=extra_flag2)
                     else:polyhedra.cal_p2(theta=theta[0],phi=phi[0],flag=extra_flag,extend_flag=extra_flag2)
                     polyhedra.share_face_init(polyhedra.flag)
@@ -119,7 +119,7 @@ class domain_creator():
                 elif N_vertices==2:
                     polyhedra=octahedra.share_edge(edge=anchor)
                     if use_ref==True:
-                        ref_p=(anchor[0]+anchor[1])/2+np.array([[0,0.,2.]])
+                        ref_p=(anchor[0]+anchor[1])/2+np.array([0,0.,2.])
                         polyhedra.cal_p2(ref_p=ref_p,theta=theta[0],phi=phi[0],flag=extra_flag)
                     else:polyhedra.cal_p2(theta=theta[0],phi=phi[0],flag=extra_flag)
                     polyhedra.share_face_init(polyhedra.flag)
