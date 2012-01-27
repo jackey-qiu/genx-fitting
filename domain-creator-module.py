@@ -82,7 +82,7 @@ class domain_creator():
                     self.polyhedra_list.append(polyhedra)
                     oxygens=np.append(oxygens,[getattr(polyhedra,'p'+str(ii+2)) for ii in range(2)],axis=0)[1::]
                 elif N_vertices==1:
-                    polyhedra=tetrahedra.share_corner(corner=anchor)
+                    polyhedra=tetrahedra.share_corner(corner=anchor[0])
                     polyhedra.cal_p1(r=r,theta=theta[0],phi=phi[0])
                     polyhedra.cal_p2(theta=theta[1],phi=phi[1])
                     polyhedra.share_face_init()
@@ -104,7 +104,7 @@ class domain_creator():
                     self.polyhedra_list.append(polyhedra)
                     oxygens=np.append(oxygens,[getattr(polyhedra,'p'+str(ii+2)) for ii in range(3)],axis=0)[1::]
                 elif N_vertices==1:
-                    polyhedra=hexahedra.share_corner(corner=anchor)
+                    polyhedra=hexahedra.share_corner(corner=anchor[0])
                     polyhedra.cal_p1(r=r,theta=theta[0],phi=phi[0])
                     polyhedra.cal_p2(theta=theta[1],phi=phi[1],flag=extra_flag,extend_flag=extra_flag2)
                     polyhedra.share_face_init(polyhedra.flag)
@@ -126,7 +126,7 @@ class domain_creator():
                     self.polyhedra_list.append(polyhedra)
                     oxygens=np.append(oxygens,[getattr(polyhedra,'p'+str(ii+2)) for ii in range(4)],axis=0)[1::]
                 elif N_vertices==1:
-                    polyhedra=octahedra.share_corner(corner=anchor)
+                    polyhedra=octahedra.share_corner(corner=anchor[0])
                     polyhedra.cal_p1(r=r,theta=theta[0],phi=phi[0])
                     polyhedra.cal_p2(theta=theta[1],phi=phi[1],flag=extra_flag)
                     polyhedra.share_face_init(polyhedra.flag)
