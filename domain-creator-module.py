@@ -43,7 +43,9 @@ class domain_creator():
         return new_domain_A,new_domain_B
         
     def add_sorbate_polyhedra(self,domain,r=0.1,theta=[0.,0.],phi=[np.pi/2,np.pi/2],polyhedra_flag='tetrahedra',\
-            extra_flag='1_1+0_1',extra_flag2='type1',attach_atm_id=[[],[]],el='Pb',id_attach=[],use_ref=False):
+            extra_flag='1_1+0_1',extra_flag2='type1',attach_atm_id=[['id1','id2'],['id3','id4']],offset=[[None,None],[None,None]],el='Pb',id_attach=[],use_ref=False):
+        #note the offset symbol means calculating the attached site in the adjacent unit cell
+        #'+x'means plus 1 for x direction, '-x' means minus 1 for x direction and so on for '+y'and '-y'
         #theta and phi is list with at most two items, when considering share-corner, and  when considering
         #shareing edge, theta and phi list contain only one item. extra flags has values depending on the polyhedra
         #type used, attach atm id (oxygen id at the surface) is a list of list, the list inside has items of one (share corner), two (share edge)
@@ -53,6 +55,7 @@ class domain_creator():
         #id of Pb and O, so Pb_A will have Os_A_n like oxygen attached (same A),and Pb_AA will have Os_AA_n like oxygen attached (same AA)
         #this function will add several types of Pb at the surface,each type will correspoind to a polyhedra in self.polyhedra_list
         #you shoul know the index of chemically equivalent polyhedra, it should be every other number,like 0 and 2,or 1 and 3.
+        
         N_vertices=len(attach_atm_id[0])
         if N_vertices==3:self.share_face=True
         elif N_vertices==2:self.share_edge=True
@@ -62,7 +65,16 @@ class domain_creator():
             for j in range(N_vertices):
                 index=np.where(domain.id==attach_atm_id[i][j])[0][0]
                 pt_x,pt_y,pt_z=domain.x[index],domain.y[index],domain.z[index]
-                anchor=np.append(anchor,np.array([[pt_x*5.038,pt_y*5.434,pt_z*7.3707]]),axis=0)
+                if offset[i][j]=='+x':
+                    anchor=np.append(anchor,np.array([[(pt_x+1.)*5.038,pt_y*5.434,pt_z*7.3707]]),axis=0)
+                elif offset[i][j]=='-x':
+                    anchor=np.append(anchor,np.array([[(pt_x-1.)*5.038,pt_y*5.434,pt_z*7.3707]]),axis=0)
+                elif offset[i][j]=='+y':
+                    anchor=np.append(anchor,np.array([[pt_x*5.038,(pt_y+1.)*5.434,pt_z*7.3707]]),axis=0)
+                elif offset[i][j]=='-y':
+                    anchor=np.append(anchor,np.array([[pt_x*5.038,(pt_y-1.)*5.434,pt_z*7.3707]]),axis=0)
+                else:
+                    anchor=np.append(anchor,np.array([[pt_x*5.038,pt_y*5.434,pt_z*7.3707]]),axis=0)
             anchor=anchor[1::]
             oxygens=np.array([[0.,0.,0.]])
             polyhedra=0
