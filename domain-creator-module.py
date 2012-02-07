@@ -213,6 +213,106 @@ class domain_creator():
                 self.updata_polyhedra_center_point(domain_list,Pb_id_list,polyhedra_index_list)
         f.close()
         
+    def adding_pb_share_triple(self,domain,attach_atm_ids=['id1','id2','id3'],offset=[None,None,None],pb_id='pb_id'):
+        #the pb will be placed in a plane determined by three points,and lead position is equally distant from the three points
+        p_O1_index=np.where(domain.id==attach_atm_ids[0])
+        p_O2_index=np.where(domain.id==attach_atm_ids[1])
+        p_O3_index=np.where(domain.id==attach_atm_ids[2])
+        basis=np.array([5.038,5.434,7.3707])
+        
+        def _translate_offset_symbols(symbol):
+            if symbol=='-x':return np.array([-1.,0.,0.])
+            elif symbol=='+x':return np.array([1.,0.,0.])
+            elif symbol=='-y':return np.array([0.,-1.,0.])
+            elif symbol=='+y':return np.array([0.,1.,0.])
+            elif symbol==None:return np.array([0.,0.,0.])
+
+        f2=lambda p1,p2:np.sqrt(np.sum((p1-p2)**2))
+        pt_ct=lambda domain,p_O1_index,symbol:np.array([domain.x[p_O1_index][0]+domain.dx1[p_O1_index][0]+domain.dx2[p_O1_index][0]+domain.dx3[p_O1_index][0]+domain.dx4[p_O1_index][0],\
+                       domain.y[p_O1_index][0]+domain.dy1[p_O1_index][0]+domain.dy2[p_O1_index][0]+domain.dy3[p_O1_index][0]+domain.dy4[p_O1_index][0],\
+                       domain.z[p_O1_index][0]+domain.dz1[p_O1_index][0]+domain.dz2[p_O1_index][0]+domain.dz3[p_O1_index][0]+domain.dz4[p_O1_index][0]])\
+                       +_translate_offset_symbols(symbol)
+        #try to calculate the center point on the plane, two linear equations based on distance equivalence,one based on point on the plane
+        p_O1=pt_ct(domain,p_O1_index,offset[0])
+        p_O2=pt_ct(domain,p_O2_index,offset[1])
+        p_O3=pt_ct(domain,p_O2_index,offset[2])
+        p0,p1,p2=p_O1,p_O2,p_O3
+        normal=np.cross(p1-p0,p2-p0)
+        c3=np.sum(normal*p0)
+        A=np.array([2*(p1-p0),2*(p2-p0),normal])
+        C=np.array([np.sum(p1**2-p0**2),np.sum(p2**2-p0**2),c3])
+        center_point=np.dot(inv(A),C)
+        sorbate_v=center_point
+        
+        sorbate_index=None
+        try:
+            sorbate_index=np.where(domain.id==pb_id)[0][0]
+        except:
+            domain.add_atom( pb_id, "Pb",  sorbate_v[0] ,sorbate_v[1], sorbate_v[2] ,0.5,     1.00000e+00 ,     1.00000e+00 )
+        if sorbate_index!=None:
+            domain.x[sorbate_index]=sorbate_v[0]
+            domain.y[sorbate_index]=sorbate_v[1]
+            domain.z[sorbate_index]=sorbate_v[2]
+        #return anstrom
+        return sorbate_v*basis
+        
+    def adding_pb_shareedge(self,domain,r=2.,attach_atm_ids=['id1','id2'],offset=[None,None,None],bodycenter_id='Fe',pb_id='pb_id'):
+        #the pb will be placed on the extension line from rooting from bodycenter trough edge center
+        p_O1_index=np.where(domain.id==attach_atm_ids[0])
+        p_O2_index=np.where(domain.id==attach_atm_ids[1])
+        basis=np.array([5.038,5.434,7.3707])
+        body_center_index=np.where(domain.id==bodycenter_id)
+        
+        def _translate_offset_symbols(symbol):
+            if symbol=='-x':return np.array([-1.,0.,0.])
+            elif symbol=='+x':return np.array([1.,0.,0.])
+            elif symbol=='-y':return np.array([0.,-1.,0.])
+            elif symbol=='+y':return np.array([0.,1.,0.])
+            elif symbol==None:return np.array([0.,0.,0.])
+
+        f2=lambda p1,p2:np.sqrt(np.sum((p1-p2)**2))
+        pt_ct=lambda domain,p_O1_index,symbol:np.array([domain.x[p_O1_index][0]+domain.dx1[p_O1_index][0]+domain.dx2[p_O1_index][0]+domain.dx3[p_O1_index][0]+domain.dx4[p_O1_index][0],\
+                       domain.y[p_O1_index][0]+domain.dy1[p_O1_index][0]+domain.dy2[p_O1_index][0]+domain.dy3[p_O1_index][0]+domain.dy4[p_O1_index][0],\
+                       domain.z[p_O1_index][0]+domain.dz1[p_O1_index][0]+domain.dz2[p_O1_index][0]+domain.dz3[p_O1_index][0]+domain.dz4[p_O1_index][0]])\
+                       +_translate_offset_symbols(symbol)
+        p_O1=pt_ct(domain,p_O1_index,offset[0])
+        p_O2=pt_ct(domain,p_O2_index,offset[1])
+        body_center=pt_ct(domain,body_center_index,offset[2])
+        
+        p1p2_center=(p_O1+p_O2)/2.
+        v_bc_ec=(p1p2_center-body_center)*basis
+        d_bc_ec=f2(body_center*basis,p1p2_center*basis)
+        scalor=(r+d_bc_ec)/d_bc_ec
+        sorbate_v=(v_bc_ec*scalor+body_center*basis)/basis
+        sorbate_index=None
+        try:
+            sorbate_index=np.where(domain.id==pb_id)[0][0]
+        except:
+            domain.add_atom( pb_id, "Pb",  sorbate_v[0] ,sorbate_v[1], sorbate_v[2] ,0.5,     1.00000e+00 ,     1.00000e+00 )
+        if sorbate_index!=None:
+            domain.x[sorbate_index]=sorbate_v[0]
+            domain.y[sorbate_index]=sorbate_v[1]
+            domain.z[sorbate_index]=sorbate_v[2]
+        return sorbate_v*basis
+        
+    def adding_oxygen(self,domain,o_id,sorbate_coor,r,theta,phi):
+        #sorbate_coor and r are in angstrom
+        #the sorbate_coor is the origin of a sphere, oxygen added a point determined by r theta and phi
+        basis=np.array([5.038,5.434,7.3707])
+        x=r*np.cos(phi)*np.sin(theta)
+        y=r*np.sin(phi)*np.sin(theta)
+        z=r*np.cos(theta)
+        o_coor=(np.array([x,y,z])+sorbate_coor)/basis
+        o_index=None
+        try:
+            o_index=np.where(domain.id==o_id)[0][0]
+        except:
+            domain.add_atom( o_id, "O",  o_coor[0] ,o_coor[1], o_coor[2] ,0.32,     1.00000e+00 ,     1.00000e+00 )
+        if o_index!=None:
+            domain.x[o_index]=o_coor[0]
+            domain.y[o_index]=o_coor[1]
+            domain.z[o_index]=o_coor[2]
+            
     def updata_sorbate_polyhedra2(self,domain_list=[],id_list=[],polyhedra_index_list=[],offset=0,r=0,theta=0,phi=0):
         #id in id list looks like Os_A_0 or Os_AA_0
         #id1 in domain1(domain1A) has the same setting with id2 in domain2(domain1B)
@@ -275,7 +375,27 @@ class domain_creator():
                 domain.add_atom(id='Oi_1'+str(O_id[i]),element='O',x=point_sorbate_1[0],y=point_sorbate_1[1],z=point_sorbate_1[2],u=1.)
                 domain.add_atom(id='Oi_2'+str(O_id[i]),element='O',x=point_sorbate_2[0],y=point_sorbate_2[1],z=point_sorbate_2[2],u=1.)
         #return domain
-    
+    def add_oxygen_pair2(self,domain,ref_id,O_id,v_shift,r,alpha):
+    #v_shift and r are in unit of angstrom
+        ref_index=np.where(domain.id==ref_id)[0]
+        basis=np.array([5.038,5.434,7.3707])
+        ref_point=[domain.x[ref_index]*basis[0],domain.y[ref_index]*basis[1],domain.z[ref_index]*basis[2]+v_shift]
+        x_shift=r*np.cos(alpha)
+        y_shift=r*np.sin(alpha)
+        point1=np.array([ref_point[0][0]-x_shift,ref_point[1][0]-y_shift,ref_point[2][0]])/basis
+        point2=np.array([ref_point[0][0]+x_shift,ref_point[1][0]+y_shift,ref_point[2][0]])/basis
+        O_index1=None
+        O_index2=None
+        try:
+            O_index1=np.where(domain.id==O_id[0])[0][0]
+            O_index2=np.where(domain.id==O_id[1])[0][0]
+        except:
+            domain.add_atom( O_id[0], "O",  point1[0] ,point1[1], point1[2] ,0.32,     1.00000e+00 ,     1.00000e+00 )
+            domain.add_atom( O_id[1], "O",  point2[0] ,point2[1], point2[2] ,0.32,     1.00000e+00 ,     1.00000e+00 )
+        if O_index1!=None:
+            domain.x[O_index1],domain.y[O_index1],domain.z[O_index1]=point1[0],point1[1],point1[2]
+            domain.x[O_index2],domain.y[O_index2],domain.z[O_index2]=point2[0],point2[1],point2[2]
+            
     def add_oxygen_pair(self,domain,O_id,ref_point,r,alpha):
         #add single oxygen pair to a ref_point,which does not stand for an atom, the xyz for this point will be set as
         #three fitting parameters.O_id will be attached at the end of each id for the oxygen
