@@ -32,13 +32,15 @@ class domain_creator():
         return super_cell
     
     def create_equivalent_domains(self):
+    #each layer here has two atoms, so if you say terminate at oth layer (then id counted from 0, which is right)
+    #if terminated at 1st layer (acutally 2nd layer since we count from 0), then Id will count from 2, which is also make sense
         new_domain_A=self.ref_domain.copy()
         new_domain_B=self.ref_domain.copy()
-        for id in self.id_list[:self.terminated_layer]:
+        for id in self.id_list[:self.terminated_layer*2]:
             if id!=[]:
                 new_domain_A.del_atom(id)
         #number 5 here is crystal specific, here is the case for hematite
-        for id in self.id_list[:self.terminated_layer+5]:
+        for id in self.id_list[:self.terminated_layer*2+5*2]:
             new_domain_B.del_atom(id)
         return new_domain_A,new_domain_B
         
